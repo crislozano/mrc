@@ -1,0 +1,76 @@
+---
+title: "MRC"
+subtitle: "Fun"
+author: "Cristina Lozano"
+date: "2018/2/27"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+```{r, load_libaries, message=FALSE, warning=FALSE}
+# devtools::install_github("jvcasillas/untidydata")
+library(untidydata)
+# devtools::install_github("yihui/xaringan")
+library(xaringan)
+library(plot3D)
+library(tidyverse)
+```
+
+---
+
+# My tidy data
+
+```{r, tidy}
+ld <- language_diversity %>%
+  filter(., Continent == "Africa") %>%
+  spread(., Measurement, Value) %>%
+  select(., country = Country, pop = Population, area = Area, lang = Langs) %>%
+  mutate(., logArea =log(area), logPop = log(pop))
+
+```
+
+
+---
+
+# My plot
+
+```{r, plot, fig.width=12}
+ld %>%
+  ggplot(., aes(x = logPop, y = lang, label = country)) +
+  geom_text()
+
+```
+
+---
+
+# My model
+
+```{r, model}
+
+my_int <- lm(lang ~ logPop + logArea + logPop:logArea, data = ld)
+summary(my_int)$coef
+
+```
+
+---
+
+```{r, 3dplot, echo=FALSE}
+library(plot3D)
+
+x <- ld$logArea
+y <- ld$logPop
+z <- ld$lang
+
+scatter3D(x, y, z)
+```
+
+
